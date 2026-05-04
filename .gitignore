@@ -1,0 +1,18 @@
+# Ignore datasets
+dataset/
+
+# Ignore models
+models/
+
+# Ignore checkpoints
+checkpoint-*/
+
+# Large ML files
+*.bin
+*.pt
+*.pth
+*.safetensors
+
+# Python cache
+__pycache__/
+*.pyc

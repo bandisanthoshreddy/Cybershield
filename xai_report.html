@@ -1,0 +1,541 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CyberShield XAI Report</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0e1a;--sur:#111827;--sur2:#1a2235;--bdr:#1e2d45;
+       --txt:#e2e8f0;--mut:#64748b;--tox:#ef4444;--saf:#22c55e;--acc:#38bdf8;
+       --mono:'Space Mono',monospace;--sans:'DM Sans',sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--txt);font-family:var(--sans);font-size:15px;line-height:1.6;min-height:100vh}
+.hdr{background:linear-gradient(135deg,#0f172a 0%,#1e1b4b 50%,#0f172a 100%);
+      border-bottom:1px solid var(--bdr);padding:48px 40px 40px;position:relative;overflow:hidden}
+.hdr::before{content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 60% 80% at 70% 50%,rgba(56,189,248,.08) 0%,transparent 70%)}
+.hi{position:relative;max-width:900px;margin:0 auto}
+.htag{font-family:var(--mono);font-size:11px;letter-spacing:.15em;color:var(--acc);
+       text-transform:uppercase;margin-bottom:12px}
+h1{font-family:var(--mono);font-size:clamp(28px,4vw,42px);font-weight:700;
+    letter-spacing:-.02em;color:#fff;line-height:1.1;margin-bottom:10px}
+h1 span{color:var(--acc)}
+.sub{color:var(--mut);font-size:14px;max-width:540px}
+.stats{display:flex;gap:28px;margin-top:28px;flex-wrap:wrap}
+.stat{display:flex;flex-direction:column;gap:2px}
+.sv{font-family:var(--mono);font-size:22px;font-weight:700;color:var(--acc)}
+.sl{font-size:11px;color:var(--mut);letter-spacing:.08em;text-transform:uppercase}
+.main{max-width:900px;margin:0 auto;padding:40px}
+.why{background:var(--sur);border:1px solid var(--bdr);border-left:3px solid var(--acc);
+      border-radius:12px;padding:24px 28px;margin-bottom:36px}
+.why h2{font-family:var(--mono);font-size:13px;letter-spacing:.1em;color:var(--acc);
+         text-transform:uppercase;margin-bottom:12px}
+.why p{color:#94a3b8;font-size:13.5px;line-height:1.7;margin-bottom:8px}
+.why p:last-child{margin-bottom:0}
+.why strong{color:var(--txt)}
+.card{background:var(--sur);border:1px solid var(--bdr);border-radius:14px;
+       margin-bottom:28px;overflow:hidden}
+.card:hover{border-color:#2d3f5a}
+.card-toxic{border-top:3px solid var(--tox)}
+.card-safe{border-top:3px solid var(--saf)}
+.card-header{display:flex;align-items:flex-start;justify-content:space-between;
+              gap:16px;padding:20px 24px 14px}
+.itext{font-size:15px;color:var(--txt);flex:1}
+.badge{flex-shrink:0;font-family:var(--mono);font-size:11px;font-weight:700;
+        letter-spacing:.08em;color:#fff;padding:4px 12px;border-radius:999px;white-space:nowrap}
+.card-meta{padding:0 24px 16px;font-size:12.5px;color:var(--mut);font-family:var(--mono)}
+.slabel{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;
+         color:var(--mut);padding:12px 24px 8px;border-top:1px solid var(--bdr)}
+.tok-row{padding:10px 20px 16px;line-height:2.4;font-family:var(--mono);font-size:13px}
+.tok{display:inline-block;padding:1px 5px;margin:2px;border-radius:4px;cursor:default;
+      transition:transform .1s}
+.tok:hover{transform:translateY(-1px)}
+.legend{display:flex;gap:10px;padding:0 24px 16px;flex-wrap:wrap}
+.li{font-size:11px;padding:2px 10px;border-radius:999px;font-family:var(--mono)}
+.lt-hi{background:rgba(239,68,68,.7);color:#fff}
+.lt-lo{background:rgba(239,68,68,.25);color:#fca5a5}
+.ls{background:rgba(34,197,94,.4);color:#86efac}
+.ln{background:rgba(148,163,184,.15);color:var(--mut)}
+.ttab{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:4px}
+.ttab th{padding:8px 16px;text-align:left;font-family:var(--mono);font-size:10px;
+          letter-spacing:.1em;text-transform:uppercase;color:var(--mut);
+          border-top:1px solid var(--bdr);background:var(--sur2)}
+.ttab td{padding:9px 16px;border-top:1px solid var(--bdr);color:var(--txt)}
+.ttab code{font-family:var(--mono);background:var(--sur2);padding:1px 6px;
+            border-radius:4px;font-size:12px}
+.rk{color:var(--mut);font-family:var(--mono);font-size:12px;width:30px}
+.bar{height:6px;border-radius:3px;min-width:4px}
+footer{text-align:center;padding:32px;color:var(--mut);font-size:12px;
+        font-family:var(--mono);border-top:1px solid var(--bdr);margin-top:20px}
+</style></head><body>
+<header class="hdr"><div class="hi">
+  <div class="htag">CyberShield · XAI Layer · SHAP Explainability</div>
+  <h1>Token-Level <span>BULLYING</span> Explanations</h1>
+  <p class="sub">Each prediction is explained using SHAP (SHapley Additive exPlanations),
+  showing exactly which tokens pushed the model toward BULLYING or NON-BULLYING.</p>
+  <div class="stats">
+    <div class="stat"><div class="sv">10</div><div class="sl">Inputs analysed</div></div>
+    <div class="stat"><div class="sv">6</div><div class="sl">Bullying detected</div></div>
+    <div class="stat"><div class="sv">SHAP</div><div class="sl">Method used</div></div>
+    <div class="stat"><div class="sv">XLM-R</div><div class="sl">Base model</div></div>
+  </div>
+</div></header>
+<main class="main">
+  <div class="why">
+    <h2>Why SHAP?</h2>
+    <p><strong>Attention weights</strong> show which tokens the model "looked at" — not which tokens
+    <em>caused</em> the prediction. Research (Jain &amp; Wallace 2019) showed attention and prediction
+    importance are largely uncorrelated.</p>
+    <p><strong>LIME</strong> approximates the model locally by randomly masking words. Fast, but
+    unstable — run it twice on the same input and you can get different explanations.</p>
+    <p><strong>SHAP</strong> is grounded in cooperative game theory. It treats each token as a "player"
+    and distributes prediction credit fairly using Shapley values — guaranteed to be
+    <strong>efficient</strong> (scores sum to the actual prediction gap),
+    <strong>symmetric</strong> (equal contributors get equal scores), and
+    <strong>stable</strong> (same input always produces the same explanation). For multilingual
+    social-media text with subword tokenisation, SHAP's mask-based approach is semantically
+    correct and model-agnostic — no gradient access needed.</p>
+  </div>
+  
+        <div class="card card-toxic">
+          <div class="card-header">
+            <span class="itext">"You are so stupid, get out of here"</span>
+            <span class="badge" style="background:#ef4444">⚠ BULLYING</span>
+          </div>
+          <div class="card-meta">Confidence: <strong>0.9908</strong> &nbsp;·&nbsp; Bullying Prob: <strong>0.9908</strong></div>
+          <div class="slabel">Token Explanation</div>
+          <div class="tok-row"><span class="tok" style="background:rgba(148,163,184,.15);border:1px solid transparent"></span><span class="tok" style="background:rgba(239,68,68,0.27);border:1px solid rgba(220,38,38,.6)">You </span><span class="tok" style="background:rgba(34,197,94,0.27);border:1px solid rgba(22,163,74,.6)">are </span><span class="tok" style="background:rgba(34,197,94,0.27);border:1px solid rgba(22,163,74,.6)">so </span><span class="tok" style="background:rgba(239,68,68,0.80);border:1px solid rgba(220,38,38,.6)">stupid</span><span class="tok" style="background:rgba(239,68,68,0.27);border:1px solid rgba(220,38,38,.6)">, </span><span class="tok" style="background:rgba(239,68,68,0.49);border:1px solid rgba(220,38,38,.6)">get </span><span class="tok" style="background:rgba(239,68,68,0.22);border:1px solid rgba(220,38,38,.6)">out </span><span class="tok" style="background:rgba(239,68,68,0.20);border:1px solid rgba(220,38,38,.6)">of </span><span class="tok" style="background:rgba(34,197,94,0.35);border:1px solid rgba(22,163,74,.6)">here</span><span class="tok" style="background:rgba(148,163,184,.15);border:1px solid transparent"></span></div>
+          <div class="legend">
+            <span class="li lt-hi">High bullying</span>
+            <span class="li lt-lo">Low bullying</span>
+            <span class="li ls">Safe</span>
+            <span class="li ln">Neutral</span>
+          </div>
+          <div class="slabel">Top Contributing Tokens</div>
+          <table class="ttab"><thead><tr>
+            <th>#</th><th>Token</th><th>Direction</th><th>Score</th><th>Magnitude</th>
+          </tr></thead><tbody><tr>
+              <td class="rk">1</td><td><code>stupid</code></td>
+              <td style="color:#ef4444;font-weight:600">→ BULLYING</td>
+              <td>+0.4244</td>
+              <td><div class="bar" style="width:100%;background:#ef4444"></div></td>
+            </tr><tr>
+              <td class="rk">2</td><td><code>get </code></td>
+              <td style="color:#ef4444;font-weight:600">→ BULLYING</td>
+              <td>+0.2188</td>
+              <td><div class="bar" style="width:51%;background:#ef4444"></div></td>
+            </tr><tr>
+              <td class="rk">3</td><td><code>here</code></td>
+              <td style="color:#22c55e;font-weight:600">→ SAFE</td>
+              <td>-0.1299</td>
+              <td><div class="bar" style="width:30%;background:#22c55e"></div></td>
+            </tr><tr>
+              <td class="rk">4</td><td><code>so </code></td>
+              <td style="color:#22c55e;font-weight:600">→ SAFE</td>
+              <td>-0.0808</td>
+              <td><div class="bar" style="width:19%;background:#22c55e"></div></td>
+            </tr><tr>
+              <td class="rk">5</td><td><code>are </code></td>
+              <td style="color:#22c55e;font-weight:600">→ SAFE</td>
+              <td>-0.0808</td>
+              <td><div class="bar" style="width:19%;background:#22c55e"></div></td>
+            </tr></tbody></table>
+        </div>
+        <div class="card card-safe">
+          <div class="card-header">
+            <span class="itext">"Have a wonderful day, take care!"</span>
+            <span class="badge" style="background:#22c55e">✓ NON-BULLYING</span>
+          </div>
+          <div class="card-meta">Confidence: <strong>0.9829</strong> &nbsp;·&nbsp; Bullying Prob: <strong>0.0171</strong></div>
+          <div class="slabel">Token Explanation</div>
+          <div class="tok-row"><span class="tok" style="background:rgba(148,163,184,.15);border:1px solid transparent"></span><span class="tok" style="background:rgba(34,197,94,0.49);border:1px solid rgba(22,163,74,.6)">Have </span><span class="tok" style="background:rgba(34,197,94,0.24);border:1px solid rgba(22,163,74,.6)">a </span><span class="tok" style="background:rgba(34,197,94,0.61);border:1px solid rgba(22,163,74,.6)">wonderful </span><span class="tok" style="background:rgba(34,197,94,0.57);border:1px solid rgba(22,163,74,.6)">day</span><span class="tok" style="background:rgba(239,68,68,0.22);border:1px solid rgba(220,38,38,.6)">, </span><span class="tok" style="background:rgba(34,197,94,0.43);border:1px solid rgba(22,163,74,.6)">take </span><span class="tok" style="background:rgba(34,197,94,0.80);border:1px solid rgba(22,163,74,.6)">care</span><span class="tok" style="background:rgba(34,197,94,0.47);border:1px solid rgba(22,163,74,.6)">!</span><span class="tok" style="background:rgba(148,163,184,.15);border:1px solid transparent"></span></div>
+          <div class="legend">
+            <span class="li lt-hi">High bullying</span>
+            <span class="li lt-lo">Low bullying</span>
+            <span class="li ls">Safe</span>
+            <span class="li ln">Neutral</span>
+          </div>
+          <div class="slabel">Top Contributing Tokens</div>
+          <table class="ttab"><thead><tr>
+            <th>#</th><th>Token</th><th>Direction</th><th>Score</th><th>Magnitude</th>
+          </tr></thead><tbody><tr>
+              <td class="rk">1</td><td><code>care</code></td>
+              <td style="color:#22c55e;font-weight:600">→ SAFE</td>
+              <td>-0.0931</td>
+              <td><div class="bar" style="width:100%;background:#22c55e"></div></td>
+            </tr><tr>
+              <td class="rk">2</td><td><code>wonderful </code></td>
+              <td style="color:#22c55e;font-weight:600">→ SAFE</td>
+              <td>-0.0666</td>
+              <td><div class="bar" style="width:71%;background:#22c55e"></div></td>
+            </tr><tr>
+              <td class="rk">3</td><td><code>day</code></td>
+              <td style="color:#22c55e;font-weight:600">→ SAFE</td>
+              <td>-0.0595</td>
+              <td><div class="bar" style="width:63%;background:#22c55e"></div></td>
+            </tr><tr>
+              <td class="rk">4</td><td><code>Have </code></td>
+              <td style="color:#22c55e;font-weight:600">→ SAFE</td>
+              <td>-0.0491</td>
+              <td><div class="bar" style="width:52%;background:#22c55e"></div></td>
+            </tr><tr>
+              <td class="rk">5</td><td><code>!</code></td>
+              <td style="color:#22c55e;font-weight:600">→ SAFE</td>
+              <td>-0.0460</td>
+              <td><div class="bar" style="width:49%;background:#22c55e"></div></td>
+            </tr></tbody></table>
+        </div>
+        <div class="card card-toxic">
+          <div class="card-header">
+            <span class="itext">"I will find you and hurt you badly"</span>
+            <span class="badge" style="background:#ef4444">⚠ BULLYING</span>
+          </div>
+          <div class="card-meta">Confidence: <strong>0.8373</strong> &nbsp;·&nbsp; Bullying Prob: <strong>0.8373</strong></div>
+          <div class="slabel">Token Explanation</div>
+          <div class="tok-row"><span class="tok" style="background:rgba(148,163,184,.15);border:1px solid transparent"></span><span class="tok" style="background:rgba(34,197,94,0.33);border:1px solid rgba(22,163,74,.6)">I </span><span class="tok" style="background:rgba(239,68,68,0.19);border:1px solid rgba(220,38,38,.6)">will </span><span class="tok" style="background:rgba(239,68,68,0.21);border:1px solid rgba(220,38,38,.6)">find </span><span class="tok" style="background:rgba(239,68,68,0.23);border:1px solid rgba(220,38,38,.6)">you </span><span class="tok" style="background:rgba(34,197,94,0.52);border:1px solid rgba(22,163,74,.6)">and </span><span class="tok" style="background:rgba(239,68,68,0.79);border:1px solid rgba(220,38,38,.6)">hurt </span><span class="tok" style="background:rgba(239,68,68,0.66);border:1px solid rgba(220,38,38,.6)">you </span><span class="tok" style="background:rgba(239,68,68,0.80);border:1px solid rgba(220,38,38,.6)">bad</span><span class="tok" style="background:rgba(239,68,68,0.59);border:1px solid rgba(220,38,38,.6)">ly</span><span class="tok" style="background:rgba(148,163,184,.15);border:1px solid transparent"></span></div>
+          <div class="legend">
+            <span class="li lt-hi">High bullying</span>
+            <span class="li lt-lo">Low bullying</span>
+            <span class="li ls">Safe</span>
+            <span class="li ln">Neutral</span>
+          </div>
+          <div class="slabel">Top Contributing Tokens</div>
+          <table class="ttab"><thead><tr>
+            <th>#</th><th>Token</th><th>Direction</th><th>Score</th><th>Magnitude</th>
+          </tr></thead><tbody><tr>
+              <td class="rk">1</td><td><code>bad</code></td>
+              <td style="color:#ef4444;font-weight:600">→ BULLYING</td>
+              <td>+0.1524</td>
+              <td><div class="bar" style="width:100%;background:#ef4444"></div></td>
+            </tr><tr>
+              <td class="rk">2</td><td><code>hurt </code></td>
+              <td style="color:#ef4444;font-weight:600">→ BULLYING</td>
+              <td>+0.1489</td>
+              <td><div class="bar" style="width:97%;background:#ef4444"></div></td>
+            </tr><tr>
+              <td class="rk">3</td><td><code>you </code></td>
+              <td style="color:#ef4444;font-weight:600">→ BULLYING</td>
+              <td>+0.1190</td>
+              <td><div class="bar" style="width:78%;background:#ef4444"></div></td>
+            </tr><tr>
+              <td class="rk">4</td><td><code>ly</code></td>
+              <td style="color:#ef4444;font-weight:600">→ BULLYING</td>
+              <td>+0.1034</td>
+              <td><div class="bar" style="width:67%;background:#ef4444"></div></td>
+            </tr><tr>
+              <td class="rk">5</td><td><code>and </code></td>
+              <td style="color:#22c55e;font-weight:600">→ SAFE</td>
+              <td>-0.0866</td>
+              <td><div class="bar" style="width:56%;background:#22c55e"></div></td>
+            </tr></tbody></table>
+        </div>
+        <div class="card card-toxic">
+          <div class="card-header">
+            <span class="itext">"तुम बेवकूफ हो"</span>
+            <span class="badge" style="background:#ef4444">⚠ BULLYING</span>
+          </div>
+          <div class="card-meta">Confidence: <strong>0.9568</strong> &nbsp;·&nbsp; Bullying Prob: <strong>0.9568</strong></div>
+          <div class="slabel">Token Explanation</div>
+          <div class="tok-row"><span class="tok" style="background:rgba(148,163,184,.15);border:1px solid transparent"></span><span class="tok" style="background:rgba(239,68,68,0.80);border:1px solid rgba(220,38,38,.6)">तुम </span><span class="tok" style="background:rgba(239,68,68,0.51);border:1px solid rgba(220,38,38,.6)">बे</span><span class="tok" style="background:rgba(34,197,94,0.38);border:1px solid rgba(22,163,74,.6)">व</span><span class="tok" style="background:rgba(239,68,68,0.50);border:1px solid rgba(220,38,38,.6)">कू</span><span class="tok" style="background:rgba(239,68,68,0.44);border:1px solid rgba(220,38,38,.6)">फ </span><span class="tok" style="background:rgba(239,68,68,0.28);border:1px solid rgba(220,38,38,.6)">हो</span><span class="tok" style="background:rgba(148,163,184,.15);border:1px solid transparent"></span></div>
+          <div class="legend">
+            <span class="li lt-hi">High bullying</span>
+            <span class="li lt-lo">Low bullying</span>
+            <span class="li ls">Safe</span>
+            <span class="li ln">Neutral</span>
+          </div>
+          <div class="slabel">Top Contributing Tokens</div>
+          <table class="ttab"><thead><tr>
+            <th>#</th><th>Token</th><th>Direction</th><th>Score</th><th>Magnitude</th>
+          </tr></thead><tbody><tr>
+              <td class="rk">1</td><td><code>तुम </code></td>
+              <td style="color:#ef4444;font-weight:600">→ BULLYING</td>
+              <td>+0.2902</td>
+              <td><div class="bar" style="width:100%;background:#ef4444"></div></td>
+            </tr><tr>
+              <td class="rk">2</td><td><code>बे</code></td>
+              <td style="color:#ef4444;font-weight:600">→ BULLYING</td>
+              <td>+0.1608</td>
+              <td><div class="bar" style="width:55%;background:#ef4444"></div></td>
+            </tr><tr>
+              <td class="rk">3</td><td><code>कू</code></td>
+              <td style="color:#ef4444;font-weight:600">→ BULLYING</td>
+              <td>+0.1554</td>
+              <td><div class="bar" style="width:53%;background:#ef4444"></div></td>
+            </tr><tr>
+              <td class="rk">4</td><td><code>फ </code></td>
+              <td style="color:#ef4444;font-weight:600">→ BULLYING</td>
+              <td>+0.1274</td>
+              <td><div class="bar" style="width:43%;background:#ef4444"></div></td>
+            </tr><tr>
+              <td class="rk">5</td><td><code>व</code></td>
+              <td style="color:#22c55e;font-weight:600">→ SAFE</td>
+              <td>-0.1028</td>
+              <td><div class="bar" style="width:35%;background:#22c55e"></div></td>
+            </tr></tbody></table>
+        </div>
+        <div class="card card-safe">
+          <div class="card-header">
+            <span class="itext">"तुम बहुत अच्छे इंसान हो"</span>
+            <span class="badge" style="background:#22c55e">✓ NON-BULLYING</span>
+          </div>
+          <div class="card-meta">Confidence: <strong>0.9740</strong> &nbsp;·&nbsp; Bullying Prob: <strong>0.0260</strong></div>
+          <div class="slabel">Token Explanation</div>
+          <div class="tok-row"><span class="tok" style="background:rgba(148,163,184,.15);border:1px solid transparent"></span><span class="tok" style="background:rgba(239,68,68,0.56);border:1px solid rgba(220,38,38,.6)">तुम </span><span class="tok" style="background:rgba(34,197,94,0.80);border:1px solid rgba(22,163,74,.6)">बहुत </span><span class="tok" style="background:rgba(34,197,94,0.38);border:1px solid rgba(22,163,74,.6)">अच्छे </span><span class="tok" style="background:rgba(34,197,94,0.34);border:1px solid rgba(22,163,74,.6)">इंसान </span><span class="tok" style="background:rgba(148,163,184,.15);border:1px solid transparent">हो</span><span class="tok" style="background:rgba(148,163,184,.15);border:1px solid transparent"></span></div>
+          <div class="legend">
+            <span class="li lt-hi">High bullying</span>
+            <span class="li lt-lo">Low bullying</span>
+            <span class="li ls">Safe</span>
+            <span class="li ln">Neutral</span>
+          </div>
+          <div class="slabel">Top Contributing Tokens</div>
+          <table class="ttab"><thead><tr>
+            <th>#</th><th>Token</th><th>Direction</th><th>Score</th><th>Magnitude</th>
+          </tr></thead><tbody><tr>
+              <td class="rk">1</td><td><code>बहुत </code></td>
+              <td style="color:#22c55e;font-weight:600">→ SAFE</td>
+              <td>-0.1564</td>
+              <td><div class="bar" style="width:100%;background:#22c55e"></div></td>
+            </tr><tr>
+              <td class="rk">2</td><td><code>तुम </code></td>
+              <td style="color:#ef4444;font-weight:600">→ BULLYING</td>
+              <td>+0.0992</td>
+              <td><div class="bar" style="width:63%;background:#ef4444"></div></td>
+            </tr><tr>
+              <td class="rk">3</td><td><code>अच्छे </code></td>
+              <td style="color:#22c55e;font-weight:600">→ SAFE</td>
+              <td>-0.0562</td>
+              <td><div class="bar" style="width:35%;background:#22c55e"></div></td>
+            </tr><tr>
+              <td class="rk">4</td><td><code>इंसान </code></td>
+              <td style="color:#22c55e;font-weight:600">→ SAFE</td>
+              <td>-0.0446</td>
+              <td><div class="bar" style="width:28%;background:#22c55e"></div></td>
+            </tr><tr>
+              <td class="rk">5</td><td><code>हो</code></td>
+              <td style="color:#22c55e;font-weight:600">→ SAFE</td>
+              <td>-0.0002</td>
+              <td><div class="bar" style="width:0%;background:#22c55e"></div></td>
+            </tr></tbody></table>
+        </div>
+        <div class="card card-toxic">
+          <div class="card-header">
+            <span class="itext">"నువ్వు చాలా వేస్ట్ ఫెలో"</span>
+            <span class="badge" style="background:#ef4444">⚠ BULLYING</span>
+          </div>
+          <div class="card-meta">Confidence: <strong>0.5130</strong> &nbsp;·&nbsp; Bullying Prob: <strong>0.5130</strong></div>
+          <div class="slabel">Token Explanation</div>
+          <div class="tok-row"><span class="tok" style="background:rgba(148,163,184,.15);border:1px solid transparent"></span><span class="tok" style="background:rgba(239,68,68,0.31);border:1px solid rgba(220,38,38,.6)">నువ్వు </span><span class="tok" style="background:rgba(34,197,94,0.80);border:1px solid rgba(22,163,74,.6)">చాలా </span><span class="tok" style="background:rgba(34,197,94,0.18);border:1px solid rgba(22,163,74,.6)">వే</span><span class="tok" style="background:rgba(34,197,94,0.20);border:1px solid rgba(22,163,74,.6)">స్ట్ </span><span class="tok" style="background:rgba(239,68,68,0.41);border:1px solid rgba(220,38,38,.6)">ఫ</span><span class="tok" style="background:rgba(239,68,68,0.78);border:1px solid rgba(220,38,38,.6)">ఫె</span><span class="tok" style="background:rgba(34,197,94,0.52);border:1px solid rgba(22,163,74,.6)">లో</span><span class="tok" style="background:rgba(148,163,184,.15);border:1px solid transparent"></span></div>
+          <div class="legend">
+            <span class="li lt-hi">High bullying</span>
+            <span class="li lt-lo">Low bullying</span>
+            <span class="li ls">Safe</span>
+            <span class="li ln">Neutral</span>
+          </div>
+          <div class="slabel">Top Contributing Tokens</div>
+          <table class="ttab"><thead><tr>
+            <th>#</th><th>Token</th><th>Direction</th><th>Score</th><th>Magnitude</th>
+          </tr></thead><tbody><tr>
+              <td class="rk">1</td><td><code>చాలా </code></td>
+              <td style="color:#22c55e;font-weight:600">→ SAFE</td>
+              <td>-0.4936</td>
+              <td><div class="bar" style="width:100%;background:#22c55e"></div></td>
+            </tr><tr>
+              <td class="rk">2</td><td><code>ఫె</code></td>
+              <td style="color:#ef4444;font-weight:600">→ BULLYING</td>
+              <td>+0.4770</td>
+              <td><div class="bar" style="width:96%;background:#ef4444"></div></td>
+            </tr><tr>
+              <td class="rk">3</td><td><code>లో</code></td>
+              <td style="color:#22c55e;font-weight:600">→ SAFE</td>
+              <td>-0.2778</td>
+              <td><div class="bar" style="width:56%;background:#22c55e"></div></td>
+            </tr><tr>
+              <td class="rk">4</td><td><code>ఫ</code></td>
+              <td style="color:#ef4444;font-weight:600">→ BULLYING</td>
+              <td>+0.1958</td>
+              <td><div class="bar" style="width:39%;background:#ef4444"></div></td>
+            </tr><tr>
+              <td class="rk">5</td><td><code>నువ్వు </code></td>
+              <td style="color:#ef4444;font-weight:600">→ BULLYING</td>
+              <td>+0.1198</td>
+              <td><div class="bar" style="width:24%;background:#ef4444"></div></td>
+            </tr></tbody></table>
+        </div>
+        <div class="card card-safe">
+          <div class="card-header">
+            <span class="itext">"మీరు చాలా మంచి వాళ్లు"</span>
+            <span class="badge" style="background:#22c55e">✓ NON-BULLYING</span>
+          </div>
+          <div class="card-meta">Confidence: <strong>0.9813</strong> &nbsp;·&nbsp; Bullying Prob: <strong>0.0187</strong></div>
+          <div class="slabel">Token Explanation</div>
+          <div class="tok-row"><span class="tok" style="background:rgba(148,163,184,.15);border:1px solid transparent"></span><span class="tok" style="background:rgba(148,163,184,.15);border:1px solid transparent">మీరు </span><span class="tok" style="background:rgba(34,197,94,0.80);border:1px solid rgba(22,163,74,.6)">చాలా </span><span class="tok" style="background:rgba(34,197,94,0.78);border:1px solid rgba(22,163,74,.6)">మంచి </span><span class="tok" style="background:rgba(34,197,94,0.76);border:1px solid rgba(22,163,74,.6)">వాళ్ల</span><span class="tok" style="background:rgba(239,68,68,0.22);border:1px solid rgba(220,38,38,.6)">ు</span><span class="tok" style="background:rgba(148,163,184,.15);border:1px solid transparent"></span></div>
+          <div class="legend">
+            <span class="li lt-hi">High bullying</span>
+            <span class="li lt-lo">Low bullying</span>
+            <span class="li ls">Safe</span>
+            <span class="li ln">Neutral</span>
+          </div>
+          <div class="slabel">Top Contributing Tokens</div>
+          <table class="ttab"><thead><tr>
+            <th>#</th><th>Token</th><th>Direction</th><th>Score</th><th>Magnitude</th>
+          </tr></thead><tbody><tr>
+              <td class="rk">1</td><td><code>చాలా </code></td>
+              <td style="color:#22c55e;font-weight:600">→ SAFE</td>
+              <td>-0.0607</td>
+              <td><div class="bar" style="width:100%;background:#22c55e"></div></td>
+            </tr><tr>
+              <td class="rk">2</td><td><code>మంచి </code></td>
+              <td style="color:#22c55e;font-weight:600">→ SAFE</td>
+              <td>-0.0587</td>
+              <td><div class="bar" style="width:96%;background:#22c55e"></div></td>
+            </tr><tr>
+              <td class="rk">3</td><td><code>వాళ్ల</code></td>
+              <td style="color:#22c55e;font-weight:600">→ SAFE</td>
+              <td>-0.0570</td>
+              <td><div class="bar" style="width:93%;background:#22c55e"></div></td>
+            </tr><tr>
+              <td class="rk">4</td><td><code>ు</code></td>
+              <td style="color:#ef4444;font-weight:600">→ BULLYING</td>
+              <td>+0.0066</td>
+              <td><div class="bar" style="width:10%;background:#ef4444"></div></td>
+            </tr><tr>
+              <td class="rk">5</td><td><code>మీరు </code></td>
+              <td style="color:#ef4444;font-weight:600">→ BULLYING</td>
+              <td>+0.0042</td>
+              <td><div class="bar" style="width:6%;background:#ef4444"></div></td>
+            </tr></tbody></table>
+        </div>
+        <div class="card card-toxic">
+          <div class="card-header">
+            <span class="itext">"நீ முட்டாள்"</span>
+            <span class="badge" style="background:#ef4444">⚠ BULLYING</span>
+          </div>
+          <div class="card-meta">Confidence: <strong>0.7495</strong> &nbsp;·&nbsp; Bullying Prob: <strong>0.7495</strong></div>
+          <div class="slabel">Token Explanation</div>
+          <div class="tok-row"><span class="tok" style="background:rgba(148,163,184,.15);border:1px solid transparent"></span><span class="tok" style="background:rgba(239,68,68,0.63);border:1px solid rgba(220,38,38,.6)">நீ </span><span class="tok" style="background:rgba(239,68,68,0.80);border:1px solid rgba(220,38,38,.6)">மு</span><span class="tok" style="background:rgba(239,68,68,0.43);border:1px solid rgba(220,38,38,.6)">ட்ட</span><span class="tok" style="background:rgba(34,197,94,0.36);border:1px solid rgba(22,163,74,.6)">ாள்</span><span class="tok" style="background:rgba(148,163,184,.15);border:1px solid transparent"></span></div>
+          <div class="legend">
+            <span class="li lt-hi">High bullying</span>
+            <span class="li lt-lo">Low bullying</span>
+            <span class="li ls">Safe</span>
+            <span class="li ln">Neutral</span>
+          </div>
+          <div class="slabel">Top Contributing Tokens</div>
+          <table class="ttab"><thead><tr>
+            <th>#</th><th>Token</th><th>Direction</th><th>Score</th><th>Magnitude</th>
+          </tr></thead><tbody><tr>
+              <td class="rk">1</td><td><code>மு</code></td>
+              <td style="color:#ef4444;font-weight:600">→ BULLYING</td>
+              <td>+0.3565</td>
+              <td><div class="bar" style="width:100%;background:#ef4444"></div></td>
+            </tr><tr>
+              <td class="rk">2</td><td><code>நீ </code></td>
+              <td style="color:#ef4444;font-weight:600">→ BULLYING</td>
+              <td>+0.2644</td>
+              <td><div class="bar" style="width:74%;background:#ef4444"></div></td>
+            </tr><tr>
+              <td class="rk">3</td><td><code>ட்ட</code></td>
+              <td style="color:#ef4444;font-weight:600">→ BULLYING</td>
+              <td>+0.1515</td>
+              <td><div class="bar" style="width:42%;background:#ef4444"></div></td>
+            </tr><tr>
+              <td class="rk">4</td><td><code>ாள்</code></td>
+              <td style="color:#22c55e;font-weight:600">→ SAFE</td>
+              <td>-0.1141</td>
+              <td><div class="bar" style="width:32%;background:#22c55e"></div></td>
+            </tr><tr>
+              <td class="rk">5</td><td><code></code></td>
+              <td style="color:#ef4444;font-weight:600">→ BULLYING</td>
+              <td>+0.0000</td>
+              <td><div class="bar" style="width:0%;background:#ef4444"></div></td>
+            </tr></tbody></table>
+        </div>
+        <div class="card card-toxic">
+          <div class="card-header">
+            <span class="itext">"tum bilkul bekar ho yaar"</span>
+            <span class="badge" style="background:#ef4444">⚠ BULLYING</span>
+          </div>
+          <div class="card-meta">Confidence: <strong>0.9325</strong> &nbsp;·&nbsp; Bullying Prob: <strong>0.9325</strong></div>
+          <div class="slabel">Token Explanation</div>
+          <div class="tok-row"><span class="tok" style="background:rgba(148,163,184,.15);border:1px solid transparent"></span><span class="tok" style="background:rgba(239,68,68,0.67);border:1px solid rgba(220,38,38,.6)">tum </span><span class="tok" style="background:rgba(239,68,68,0.17);border:1px solid rgba(220,38,38,.6)">bil</span><span class="tok" style="background:rgba(239,68,68,0.80);border:1px solid rgba(220,38,38,.6)">kul </span><span class="tok" style="background:rgba(239,68,68,0.18);border:1px solid rgba(220,38,38,.6)">be</span><span class="tok" style="background:rgba(239,68,68,0.33);border:1px solid rgba(220,38,38,.6)">kar </span><span class="tok" style="background:rgba(34,197,94,0.20);border:1px solid rgba(22,163,74,.6)">ho </span><span class="tok" style="background:rgba(239,68,68,0.22);border:1px solid rgba(220,38,38,.6)">ya</span><span class="tok" style="background:rgba(239,68,68,0.23);border:1px solid rgba(220,38,38,.6)">ar</span><span class="tok" style="background:rgba(148,163,184,.15);border:1px solid transparent"></span></div>
+          <div class="legend">
+            <span class="li lt-hi">High bullying</span>
+            <span class="li lt-lo">Low bullying</span>
+            <span class="li ls">Safe</span>
+            <span class="li ln">Neutral</span>
+          </div>
+          <div class="slabel">Top Contributing Tokens</div>
+          <table class="ttab"><thead><tr>
+            <th>#</th><th>Token</th><th>Direction</th><th>Score</th><th>Magnitude</th>
+          </tr></thead><tbody><tr>
+              <td class="rk">1</td><td><code>kul </code></td>
+              <td style="color:#ef4444;font-weight:600">→ BULLYING</td>
+              <td>+0.2429</td>
+              <td><div class="bar" style="width:100%;background:#ef4444"></div></td>
+            </tr><tr>
+              <td class="rk">2</td><td><code>tum </code></td>
+              <td style="color:#ef4444;font-weight:600">→ BULLYING</td>
+              <td>+0.1941</td>
+              <td><div class="bar" style="width:79%;background:#ef4444"></div></td>
+            </tr><tr>
+              <td class="rk">3</td><td><code>kar </code></td>
+              <td style="color:#ef4444;font-weight:600">→ BULLYING</td>
+              <td>+0.0659</td>
+              <td><div class="bar" style="width:27%;background:#ef4444"></div></td>
+            </tr><tr>
+              <td class="rk">4</td><td><code>ar</code></td>
+              <td style="color:#ef4444;font-weight:600">→ BULLYING</td>
+              <td>+0.0291</td>
+              <td><div class="bar" style="width:11%;background:#ef4444"></div></td>
+            </tr><tr>
+              <td class="rk">5</td><td><code>ya</code></td>
+              <td style="color:#ef4444;font-weight:600">→ BULLYING</td>
+              <td>+0.0278</td>
+              <td><div class="bar" style="width:11%;background:#ef4444"></div></td>
+            </tr></tbody></table>
+        </div>
+        <div class="card card-safe">
+          <div class="card-header">
+            <span class="itext">"you are very helpful, thank you"</span>
+            <span class="badge" style="background:#22c55e">✓ NON-BULLYING</span>
+          </div>
+          <div class="card-meta">Confidence: <strong>0.9853</strong> &nbsp;·&nbsp; Bullying Prob: <strong>0.0147</strong></div>
+          <div class="slabel">Token Explanation</div>
+          <div class="tok-row"><span class="tok" style="background:rgba(148,163,184,.15);border:1px solid transparent"></span><span class="tok" style="background:rgba(239,68,68,0.36);border:1px solid rgba(220,38,38,.6)">you </span><span class="tok" style="background:rgba(34,197,94,0.41);border:1px solid rgba(22,163,74,.6)">are </span><span class="tok" style="background:rgba(34,197,94,0.64);border:1px solid rgba(22,163,74,.6)">very </span><span class="tok" style="background:rgba(34,197,94,0.72);border:1px solid rgba(22,163,74,.6)">helpful</span><span class="tok" style="background:rgba(34,197,94,0.21);border:1px solid rgba(22,163,74,.6)">, </span><span class="tok" style="background:rgba(34,197,94,0.80);border:1px solid rgba(22,163,74,.6)">thank </span><span class="tok" style="background:rgba(34,197,94,0.67);border:1px solid rgba(22,163,74,.6)">you</span><span class="tok" style="background:rgba(148,163,184,.15);border:1px solid transparent"></span></div>
+          <div class="legend">
+            <span class="li lt-hi">High bullying</span>
+            <span class="li lt-lo">Low bullying</span>
+            <span class="li ls">Safe</span>
+            <span class="li ln">Neutral</span>
+          </div>
+          <div class="slabel">Top Contributing Tokens</div>
+          <table class="ttab"><thead><tr>
+            <th>#</th><th>Token</th><th>Direction</th><th>Score</th><th>Magnitude</th>
+          </tr></thead><tbody><tr>
+              <td class="rk">1</td><td><code>thank </code></td>
+              <td style="color:#22c55e;font-weight:600">→ SAFE</td>
+              <td>-0.0877</td>
+              <td><div class="bar" style="width:100%;background:#22c55e"></div></td>
+            </tr><tr>
+              <td class="rk">2</td><td><code>helpful</code></td>
+              <td style="color:#22c55e;font-weight:600">→ SAFE</td>
+              <td>-0.0767</td>
+              <td><div class="bar" style="width:87%;background:#22c55e"></div></td>
+            </tr><tr>
+              <td class="rk">3</td><td><code>you</code></td>
+              <td style="color:#22c55e;font-weight:600">→ SAFE</td>
+              <td>-0.0696</td>
+              <td><div class="bar" style="width:79%;background:#22c55e"></div></td>
+            </tr><tr>
+              <td class="rk">4</td><td><code>very </code></td>
+              <td style="color:#22c55e;font-weight:600">→ SAFE</td>
+              <td>-0.0662</td>
+              <td><div class="bar" style="width:75%;background:#22c55e"></div></td>
+            </tr><tr>
+              <td class="rk">5</td><td><code>are </code></td>
+              <td style="color:#22c55e;font-weight:600">→ SAFE</td>
+              <td>-0.0355</td>
+              <td><div class="bar" style="width:40%;background:#22c55e"></div></td>
+            </tr></tbody></table>
+        </div>
+</main>
+<footer>CyberShield · Multilingual BULLYING Detection · XAI Layer · SHAP 0.49.1</footer>
+</body></html>
