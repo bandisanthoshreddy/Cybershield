@@ -1,18 +1,17 @@
-# Ignore datasets
-dataset/
+# Runtime / local
+.gradio/
 
-# Ignore models
+# Artifacts
+*.npy
+*.html
+
+# (already have)
 models/
-
-# Ignore checkpoints
+dataset/
 checkpoint-*/
-
-# Large ML files
 *.bin
 *.pt
 *.pth
 *.safetensors
-
-# Python cache
 __pycache__/
 *.pyc
