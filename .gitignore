@@ -1,17 +1,15 @@
-# Runtime / local
+# Local runtime
 .gradio/
 
 # Artifacts
 *.npy
 *.html
 
-# (already have)
+# Models & datasets
 models/
 dataset/
 checkpoint-*/
-*.bin
-*.pt
-*.pth
-*.safetensors
+
+# Python cache
 __pycache__/
 *.pyc
