@@ -1,18 +1,3 @@
-"""
-CyberShield XAI Layer — SHAP-based Explainability
-===================================================
-Explains WHY the model flagged a comment as toxic or non-toxic
-by computing per-token SHAP importance scores.
-
-Install:
-    pip install shap
-
-Usage:
-    python xai.py                          # runs built-in test cases
-    python xai.py --text "your text here"  # single custom input
-    python xai.py --report                 # also saves xai_report.html
-"""
-
 import argparse
 import os
 import sys
