@@ -438,7 +438,7 @@ def build_app():
         gr.Markdown("""
 # 🛡️ CyberShield — Multilingual Bullying Detector
 
-Detects bullying/abusive comments across **English · Hindi · Telugu · Tamil · Kannada · Malayalam · Hinglish**
+Detects bullying/abusive comments across **English · Hindi · Telugu · Tamil · Kannada · Malayalam **
 using **XLM-RoBERTa** + **SHAP explainability** + **Severity scoring**.
         """)
 
