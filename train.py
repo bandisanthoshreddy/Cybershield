@@ -18,9 +18,8 @@ from sklearn.metrics import (
     recall_score, confusion_matrix,
 )
 
-# =========================
 # CONFIG
-# =========================
+
 MODEL_NAME = "xlm-roberta-base"
 DATASET_PATH = "./dataset/"
 OUTPUT_DIR = "./models/cybershield-model"
@@ -45,7 +44,6 @@ if torch.cuda.is_available():
     torch.cuda.manual_seed_all(SEED)
 
 # DATASET CLASS
-
 
 class CyberShieldDataset(torch.utils.data.Dataset):
     def __init__(self, encodings, labels):
