@@ -6,7 +6,7 @@ CyberShield is an AI-powered system that detects bullying content across multipl
 
 ## 🚀 Features
 
-* 🌐 Multilingual support (English, Hindi, Telugu, Tamil, Hinglish)
+* 🌐 Multilingual support (English, Hindi, Telugu, Tamil, Malyalam, Kannada)
 * 🤖 Transformer-based model (XLM-RoBERTa)
 * 🧠 Explainable AI (SHAP-based token importance)
 * 📊 Confidence scoring
